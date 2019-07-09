@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Window : SerializedMonoBehaviour {
+public class RenderWindow : SerializedMonoBehaviour {
 
     [SerializeField] private RawImage rawImage;
 

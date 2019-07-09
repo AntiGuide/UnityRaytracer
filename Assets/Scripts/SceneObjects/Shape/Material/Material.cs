@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
 
-public class Material {
+public abstract class Material {
     public Color GetColor => throw new NotImplementedException();
 }

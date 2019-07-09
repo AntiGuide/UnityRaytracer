@@ -1,7 +1,12 @@
 ﻿using UnityEngine;
 
 public class Main : MonoBehaviour {
+    private Raytracer raytracer;
+    private Scene scene;
+    
     private void Start() {
+        raytracer = new Raytracer();
+        
         SetupScene();
         SetupLights();
         SetupCameras();
@@ -15,11 +20,11 @@ public class Main : MonoBehaviour {
     }
 
     private void Draw() {
-        throw new System.NotImplementedException();
+        raytracer.Render();
     }
 
     private void SetupScene() {
-        throw new System.NotImplementedException();
+        scene = new Scene();
     }
 
     private void SetupLights() {

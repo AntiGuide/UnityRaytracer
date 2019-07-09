@@ -14,7 +14,7 @@ public class Window : SerializedMonoBehaviour {
 
     private void Start() {
         rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight);
-        SetFillColor(Color.green);
+        SetFillColor(Color.grey);
     }
 
     private void SetFillColor(Color color) {

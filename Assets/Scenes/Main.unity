@@ -206,6 +206,7 @@ GameObject:
   - component: {fileID: 202097356}
   - component: {fileID: 202097355}
   - component: {fileID: 202097357}
+  - component: {fileID: 202097358}
   m_Layer: 5
   m_Name: RawImage
   m_TagString: Untagged
@@ -291,6 +292,19 @@ MonoBehaviour:
   rawImage: {fileID: 202097355}
   resolutionWidth: 1920
   resolutionHeight: 1080
+--- !u!114 &202097358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202097353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ef8419704d5ea94fbcba5d9452c68ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderWindow: {fileID: 202097357}
 --- !u!1 &491924852
 GameObject:
   m_ObjectHideFlags: 0

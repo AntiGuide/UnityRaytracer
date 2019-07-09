@@ -4,19 +4,26 @@ public class Main : MonoBehaviour {
     private Raytracer raytracer;
     private Scene scene;
     
+    [SerializeField]
+    private RenderWindow renderWindow;
+    
+    private Camera camera;
+    
     private void Start() {
         raytracer = new Raytracer();
         
         SetupScene();
-        SetupLights();
+        //SetupLights();
         SetupCameras();
-        SetupCornellBox();
+        //SetupCornellBox();
         
-        RaytraceScene();
+        //RaytraceScene();
+
+        renderWindow.SetPixels(camera.Render());
     }
 
     private void Update() {
-        Draw();
+        //Draw();
     }
 
     private void Draw() {
@@ -32,7 +39,7 @@ public class Main : MonoBehaviour {
     }
 
     private void SetupCameras() {
-        throw new System.NotImplementedException();
+        camera = scene.CreatePerspCamera();
     }
 
     private void SetupCornellBox() {

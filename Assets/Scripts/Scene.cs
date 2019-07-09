@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Scene {
     private List<Shape> shapeList = new List<Shape>();
@@ -18,8 +20,9 @@ public class Scene {
         lightList.Add(new PointLight());
     }
 
-    public void CreatePerspCamera() {
-        camera = new PerspCam();
+    public Camera CreatePerspCamera() {
+        camera = new PerspCam(Vector3.zero, Vector3.forward, Vector3.up, 90f,5,1920,1080);
+        return camera;
     }
 
 }

@@ -13,8 +13,10 @@ public class RenderWindow : SerializedMonoBehaviour {
     private Texture2D rawImageTexture;
 
     private void Start() {
-        rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight);
-        SetFillColor(Color.grey);
+        if (rawImageTexture == null) {
+            rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight);
+        }
+        //SetFillColor(Color.grey);
     }
 
     private void SetFillColor(Color color) {
@@ -31,5 +33,17 @@ public class RenderWindow : SerializedMonoBehaviour {
 
     public void SetPixel(int x, int y, Color color) {
         rawImageTexture.SetPixel(x, y, color);
+        rawImageTexture.Apply();
+        rawImage.texture = rawImageTexture;
+    }
+
+    public void SetPixels(Color[] colors) {
+        if (rawImageTexture == null) {
+            rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight);
+        }
+        
+        rawImageTexture.SetPixels(colors);
+        rawImageTexture.Apply();
+        rawImage.texture = rawImageTexture;
     }
 }

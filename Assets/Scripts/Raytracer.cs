@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 public class Raytracer {
-    private List<Shape> shapeList;
-    private List<Light> lightList;
     private Scene scene;
     private RenderWindow renderWindow;
     private int maxRecursions;

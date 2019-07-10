@@ -58,14 +58,14 @@ public abstract class Camera : SceneObject {
     public Color[] Render() {
         var ret = new Color[(xMax + 1) * (yMax + 1)];
         var dt1 = DateTime.Now;
-        
-        for (var y = 0; y <= yMax; y++) {
+
+        Parallel.For(0,yMax, y => {
             Parallel.For(0, xMax, (x) => {
                 var tmpVec = CalculateDestinationPoint(x, y);
-                var color = new Color(Mathf.Abs(tmpVec.x), Mathf.Abs(tmpVec.y), Mathf.Abs(tmpVec.z));
-                ret[y * (xMax + 1) + x] = color;
+                var color = new Color((tmpVec.x + 1f) / 2f, (tmpVec.y + 1f) / 2f, (tmpVec.z + 1f) / 2f);
+                ret[(yMax - y) * (xMax + 1) + x] = color;
             });
-        }
+        });
 
         var dt2 = DateTime.Now;
         Debug.Log((dt2 - dt1).Milliseconds);

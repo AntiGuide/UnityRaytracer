@@ -21,21 +21,49 @@ public class Raytracer {
         var ret = new Color[(camera.xMax + 1) * (camera.yMax + 1)];
         var dt1 = DateTime.Now;
 
-        Parallel.For(0,camera.yMax, y => {
+        Parallel.For(0, camera.yMax, y => {
             Parallel.For(0, camera.xMax, (x) => {
                 var tmpVec = camera.CalculateDestinationPoint(x, y);
                 var tmpRay = new Ray(camera.position, tmpVec);
                 //var tmpColor = new Color((tmpVec.x + 1f) / 2f, (tmpVec.y + 1f) / 2f, (tmpVec.z + 1f) / 2f);
                 var tmpColor = backgroundColor;
+                var selectedT = float.MaxValue;
                 foreach (var s in scene.shapeList) {
-                    var hitPoint = s.Intersect(tmpRay);
-                    if (hitPoint == null) continue;
-                    
-                    tmpColor = Color.white;
+                    var t = s.Intersect(tmpRay);
+                    if (t == null) continue;
+                    if (t < selectedT) {
+                        selectedT = (float) t;
+                        tmpColor = s.color;
+                    } else {
+                        Debug.Log("test");
+                    }
                 }
+
                 ret[(camera.yMax - y) * (camera.xMax + 1) + x] = tmpColor;
             });
         });
+
+//        for(var y = 0; y < camera.yMax; y++) {
+//            for(var x = 0; x < camera.xMax; x++) {
+//                var tmpVec = camera.CalculateDestinationPoint(x, y);
+//                var tmpRay = new Ray(camera.position, tmpVec);
+//                //var tmpColor = new Color((tmpVec.x + 1f) / 2f, (tmpVec.y + 1f) / 2f, (tmpVec.z + 1f) / 2f);
+//                var tmpColor = backgroundColor;
+//                var selectedT = float.MaxValue;
+//                foreach (var s in scene.shapeList) {
+//                    var t = s.Intersect(tmpRay);
+//                    if (t == null) continue;
+//                    if (t < selectedT) {
+//                        selectedT = (float) t;
+//                        tmpColor = s.color;
+//                    } else {
+//                        Debug.Log("test");
+//                    }
+//                }
+//
+//                ret[(camera.yMax - y) * (camera.xMax + 1) + x] = tmpColor;
+//            }
+//        }
 
         var dt2 = DateTime.Now;
         Debug.Log((dt2 - dt1).Milliseconds);

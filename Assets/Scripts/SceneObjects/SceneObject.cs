@@ -4,9 +4,11 @@ public abstract class SceneObject {
     public Vector3 position;
 
     public Matrix4x4 worldToLocalMatrix;
+    public Color color;
 
-    protected SceneObject(Vector3 position) {
+    protected SceneObject(Vector3 position, Color color) {
         this.position = position;
+        this.color = color;
         
         var gameObject = new GameObject();
         gameObject.transform.position = this.position;

@@ -7,12 +7,12 @@ public class Scene {
     protected List<Light> lightList = new List<Light>();
     private Camera camera;
 
-    public void CreateSphere() {
-        shapeList.Add(new Sphere(new Vector3(0f,5f,0f)));
+    public void CreateSphere(Vector3 position, Color color) {
+        shapeList.Add(new Sphere(position, color));
     }
 
-    public void CreatePlane() {
-        shapeList.Add(new Plane(Vector3.zero));
+    public void CreatePlane(Vector3 position, Vector3 normal, Color color) {
+        shapeList.Add(new Plane(position, normal, color));
         
     }
 
@@ -22,7 +22,7 @@ public class Scene {
 
     public Camera CreatePerspCamera() {
         //camera = new PerspCam(Vector3.zero, Vector3.forward, Vector3.up, 90f,5,1920,1080);
-        camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,1920,1080);
+        camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,1024,768);
         return camera;
     }
 

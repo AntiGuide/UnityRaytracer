@@ -6,7 +6,7 @@ using UnityEngine;
 public class Sphere : Shape {
     private const float radius = 1f;
 
-    public Sphere(Vector3 position) : base(position) {
+    public Sphere(Vector3 position, Color color) : base(position, color) {
     }
 
     public override float? Intersect(Ray ray) {
@@ -24,7 +24,12 @@ public class Sphere : Shape {
         }
 
         if (Math.Abs(Determinant(B, C)) < float.Epsilon) {
-            return T0(B, C);
+            var intersect = T0(B, C);
+            if (intersect < 0) {
+                return null;
+            }
+            
+            return intersect;
         }
 
         var tList = new List<float>(2) {
@@ -33,6 +38,10 @@ public class Sphere : Shape {
         };
         
         tList.RemoveAll(f => f < 0f);
+        if (tList.Count == 0) {
+            return null;
+        }
+        
         return tList.Min();
     }
 

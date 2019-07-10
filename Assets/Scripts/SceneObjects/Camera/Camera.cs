@@ -21,7 +21,7 @@ public abstract class Camera : SceneObject {
     private readonly float h;
     private readonly float w;
 
-    protected Camera(Vector3 viewpoint, Vector3 centerOfInterest, Vector3 UserUp, float viewAngle, float focalLength, int xMax, int yMax) : base(viewpoint){
+    protected Camera(Vector3 viewpoint, Vector3 centerOfInterest, Vector3 UserUp, float viewAngle, float focalLength, int xMax, int yMax, Color color) : base(viewpoint, color){
         lookAt = (centerOfInterest - viewpoint).normalized;
         sideVector = Vector3.Cross(lookAt, UserUp).normalized;
         upVector = Vector3.Cross(sideVector, lookAt).normalized;

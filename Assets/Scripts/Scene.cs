@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Scene {
-    private List<Shape> shapeList = new List<Shape>();
-    private List<Light> lightList = new List<Light>();
+    public List<Shape> shapeList = new List<Shape>();
+    protected List<Light> lightList = new List<Light>();
     private Camera camera;
 
     public void CreateSphere() {
-        shapeList.Add(new Sphere());
+        shapeList.Add(new Sphere(Vector3.zero));
     }
 
     public void CreatePlane() {
-        shapeList.Add(new Plane());
+        shapeList.Add(new Plane(Vector3.zero));
         
     }
 
     public void CreatePointLight() {
-        lightList.Add(new PointLight());
+        lightList.Add(new PointLight(Vector3.zero, Color.white));
     }
 
     public Camera CreatePerspCamera() {

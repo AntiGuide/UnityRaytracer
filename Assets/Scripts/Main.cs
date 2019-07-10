@@ -10,24 +10,17 @@ public class Main : MonoBehaviour {
     private Camera camera;
     
     private void Start() {
-        raytracer = new Raytracer();
-        
         SetupScene();
         //SetupLights();
         SetupCameras();
-        //SetupCornellBox();
+        SetupCornellBox();
         
-        //RaytraceScene();
-
-        renderWindow.SetPixels(camera.Render());
-    }
-
-    private void Update() {
-        //Draw();
+        raytracer = new Raytracer(scene, renderWindow, 1, Color.black, camera);
+        RaytraceScene();
     }
 
     private void Draw() {
-        raytracer.Render();
+        
     }
 
     private void SetupScene() {
@@ -43,11 +36,11 @@ public class Main : MonoBehaviour {
     }
 
     private void SetupCornellBox() {
-        throw new System.NotImplementedException();
+        scene.CreateSphere();
     }
 
     private void RaytraceScene() {
-        throw new System.NotImplementedException();
+        renderWindow.SetPixels(raytracer.Render());
     }
 
 }

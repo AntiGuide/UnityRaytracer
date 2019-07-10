@@ -1,11 +1,3 @@
-﻿using UnityEngine;
+﻿public class Intersection {
 
-public class Intersection : MonoBehaviour {
-    void Start() {
-        
-    }
-
-    void Update() {
-        
-    }
 }

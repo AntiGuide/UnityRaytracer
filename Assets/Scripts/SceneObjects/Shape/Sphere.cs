@@ -10,6 +10,8 @@ public class Sphere : Shape {
     }
 
     public override float? Intersect(Ray ray) {
+        ray = ray.TransformRay(worldToLocalMatrix);
+        
         var o = ray.origin;
         var d = ray.direction;
 

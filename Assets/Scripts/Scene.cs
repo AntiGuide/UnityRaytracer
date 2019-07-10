@@ -8,7 +8,7 @@ public class Scene {
     private Camera camera;
 
     public void CreateSphere() {
-        shapeList.Add(new Sphere(Vector3.zero));
+        shapeList.Add(new Sphere(new Vector3(0f,5f,0f)));
     }
 
     public void CreatePlane() {

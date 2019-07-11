@@ -21,8 +21,7 @@ public class Scene {
     }
 
     public Camera CreatePerspCamera() {
-        //camera = new PerspCam(Vector3.zero, Vector3.forward, Vector3.up, 90f,5,1920,1080);
-        camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,1024,768);
+        camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,1920,1080);
         return camera;
     }
 

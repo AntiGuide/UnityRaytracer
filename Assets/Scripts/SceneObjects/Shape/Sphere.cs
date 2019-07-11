@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class Sphere : Shape {
     private const float radius = 1f;
 
     public Sphere(Vector3 position, Color color) : base(position, color) {
+        this.material = new Lambert(this);
     }
 
     public override float? Intersect(Ray ray) {
@@ -43,6 +46,10 @@ public class Sphere : Shape {
         }
         
         return tList.Min();
+    }
+
+    public override Color CalculateColor(Scene scene, Vector3 intersectPoint, List<Light> list) {
+        return material.CalculateColorSphere(scene, intersectPoint, list);
     }
 
     private static float T0(float B, float C) => (-B-Mathf.Sqrt(Determinant(B, C))) / 2f;

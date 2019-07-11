@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class Raytracer {
     private Scene scene;
@@ -18,11 +20,36 @@ public class Raytracer {
     }
 
     public Color[] Render() {
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        
         var ret = new Color[(camera.xMax + 1) * (camera.yMax + 1)];
-        //var dt1 = DateTime.Now;
-
-        Parallel.For(0, camera.yMax, y => {
-            Parallel.For(0, camera.xMax, x => {
+//        Parallel.For(0, camera.yMax + 1, y => {
+//            Parallel.For(0, camera.xMax + 1, x => {
+//                var tmpVec = camera.CalculateDestinationPoint(x, y);
+//                var tmpRay = new Ray(camera.position, tmpVec);
+//                var tmpColor = backgroundColor;
+//                var selectedT = float.MaxValue;
+//                foreach (var s in scene.shapeList) {
+//                    var t = s.Intersect(tmpRay);
+//                    
+//                    if (t == null) continue;
+//                    if (!(t < selectedT)) continue;
+//                    
+//                    selectedT = (float) t;
+//                    tmpColor = s.color;
+//                }
+//
+//                var cameraXMax = camera.xMax + 1;
+//                var selectY = (camera.yMax - y);
+//                var writeY = selectY * cameraXMax;
+//                var writeX = x;
+//                ret[writeY + writeX] = tmpColor;
+//            });
+//        });
+        
+        for(int y = 0;y < camera.yMax + 1; y++) {
+            for (int x = 0; x < camera.xMax + 1; x++) {
                 var tmpVec = camera.CalculateDestinationPoint(x, y);
                 var tmpRay = new Ray(camera.position, tmpVec);
                 var tmpColor = backgroundColor;
@@ -34,15 +61,22 @@ public class Raytracer {
                     if (!(t < selectedT)) continue;
                     
                     selectedT = (float) t;
-                    tmpColor = s.color;
+                    //tmpColor = s.color;
+                    tmpColor = s.CalculateColor(scene, tmpRay.GetPoint(selectedT), scene.lightList);
+                    
                 }
 
-                ret[(camera.yMax - y) * (camera.xMax + 1) + x] = tmpColor;
-            });
-        });
-
-//        var dt2 = DateTime.Now;
-//        Debug.Log((dt2 - dt1).Milliseconds);
+                var cameraXMax = camera.xMax + 1;
+                var selectY = (camera.yMax - y);
+                var writeY = selectY * cameraXMax;
+                var writeX = x;
+                ret[writeY + writeX] = tmpColor;
+            }
+        }
+        
+        stopwatch.Stop();
+        Debug.LogFormat("Iteration for all pixels took {0:hh\\:mm\\:ss\\:fffff}", stopwatch.Elapsed);
+        Debug.LogFormat("Iteration for one pixel took {0:hh\\:mm\\:ss\\:fffff} on average", new TimeSpan(stopwatch.Elapsed.Ticks / (camera.yMax * camera.xMax)));
         return ret;
     }
 

@@ -17,4 +17,8 @@ public class Polygon : Shape {
     public override float? Intersect(Ray ray) {
         throw new NotImplementedException();
     }
+
+    public override Color CalculateColor(Scene scene, Vector3 intersectPoint, List<Light> list) {
+        return color;
+    }
 }

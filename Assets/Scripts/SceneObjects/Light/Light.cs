@@ -2,8 +2,10 @@
 
 public abstract class Light : SceneObject {
 
-    protected Light(Vector3 position, Color color) : base(position, color) {
-        
+    public float Intensity;
+    
+    protected Light(Vector3 position, Color color, float intensity) : base(position, color) {
+        this.Intensity = intensity;
     }
 
     public Color GetColor => color;

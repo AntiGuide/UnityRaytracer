@@ -15,4 +15,13 @@ public abstract class SceneObject {
         var objectTransform = gameObject.transform;
         worldToLocalMatrix = objectTransform.worldToLocalMatrix;
     }
+
+    public void UpdatePosition(Vector3 position) {
+        this.position = position;
+        
+        var gameObject = new GameObject();
+        gameObject.transform.position = this.position;
+        var objectTransform = gameObject.transform;
+        worldToLocalMatrix = objectTransform.worldToLocalMatrix;
+    }
 }

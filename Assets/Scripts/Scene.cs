@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Scene {
-    public List<Shape> shapeList = new List<Shape>();
-    protected List<Light> lightList = new List<Light>();
+    public readonly List<Shape> shapeList = new List<Shape>();
+    public readonly List<Light> lightList = new List<Light>();
     private Camera camera;
 
     public void CreateSphere(Vector3 position, Color color) {
@@ -16,12 +16,12 @@ public class Scene {
         
     }
 
-    public void CreatePointLight() {
-        lightList.Add(new PointLight(Vector3.zero, Color.white));
+    public void CreatePointLight(Vector3 position) {
+        lightList.Add(new PointLight(position, Color.white, 1f));
     }
 
     public Camera CreatePerspCamera() {
-        camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,1920,1080);
+        camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,RenderWindow.Instance.ResolutionWidth,RenderWindow.Instance.ResolutionHeight);
         return camera;
     }
 

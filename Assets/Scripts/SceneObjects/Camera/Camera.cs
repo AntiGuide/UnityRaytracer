@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public abstract class Camera : SceneObject {
     
@@ -44,12 +46,11 @@ public abstract class Camera : SceneObject {
 
     public Vector3 CalculateDestinationPoint(int x, int y) {
         var normalizedPos = new Vector2 {
-            x = 2f * ((x + 0.5f) / xMax) - 1f,
-            y = 2f * ((y + 0.5f) / yMax) - 1f
+            x = 2f * ((x + 0.5f) / (xMax + 1)) - 1f,
+            y = 2f * ((y + 0.5f) / (yMax + 1)) - 1f
         };
 
         var p1 = h * normalizedPos.y * upVector + w * normalizedPos.x * sideVector;
-        
         return (p1 + lookAt).normalized;
     }
 }

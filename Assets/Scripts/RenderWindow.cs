@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class RenderWindow : SerializedMonoBehaviour {
 
+    public static RenderWindow Instance;
+    
     [SerializeField] private RawImage rawImage;
 
     [SerializeField] private int resolutionWidth;
@@ -12,7 +14,17 @@ public class RenderWindow : SerializedMonoBehaviour {
     
     private Texture2D rawImageTexture;
 
-    private void Start() {
+    public int ResolutionWidth => resolutionWidth;
+
+    public int ResolutionHeight => resolutionHeight;
+
+    private void Awake() {
+        if (Instance != null) {
+            Application.Quit();
+        }
+
+        Instance = this;
+        
         if (rawImageTexture == null) {
             rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight);
         }

@@ -30,14 +30,15 @@ public class Phong : Material {
         foreach (var light in lights) {
             var collision = false;
             var lightPosition = light.position;
-            scene.shapeList.ForEach(s => {
-                if (s == parent) return;
+            foreach (var s in scene.shapeList) {
+                if (s.Equals(parent)) continue;
                 
                 var intersectToLight = new Ray(intersectPoint, lightPosition - intersectPoint);
                 var intersectAtLength = s.Intersect(intersectToLight) ?? float.MaxValue;
                 var magnitudeLight = Vector3.Magnitude(lightPosition - intersectPoint);
                 collision = intersectAtLength < magnitudeLight;
-            });
+                //if (collision) break;
+            }
 
             var lightVec = (lightPosition - intersectPoint).normalized;
             var cosAlpha = Mathf.Clamp01(Vector3.Dot(normal, lightVec));

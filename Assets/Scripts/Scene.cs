@@ -5,7 +5,7 @@ using UnityEngine;
 public class Scene {
     public readonly List<Shape> shapeList = new List<Shape>();
     public readonly List<Light> lightList = new List<Light>();
-    private Camera camera;
+    public Camera Camera;
 
     public void CreateSphere(Vector3 position, Color color) {
         shapeList.Add(new Sphere(position, color));
@@ -21,8 +21,8 @@ public class Scene {
     }
 
     public Camera CreatePerspCamera() {
-        camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,RenderWindow.Instance.ResolutionWidth,RenderWindow.Instance.ResolutionHeight);
-        return camera;
+        Camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,RenderWindow.Instance.ResolutionWidth,RenderWindow.Instance.ResolutionHeight);
+        return Camera;
     }
 
 }

@@ -12,4 +12,6 @@ public abstract class Material {
     protected Color GetColor => parent.color;
 
     public abstract Color CalculateColorSphere(Scene scene, Vector3 intersectPoint, List<Light> list);
+
+    public abstract Color CalculateColorPlane(Scene scene, Vector3 intersectPoint, List<Light> list, Vector3 normal);
 }

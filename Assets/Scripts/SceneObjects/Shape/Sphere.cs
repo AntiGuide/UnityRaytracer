@@ -9,7 +9,8 @@ public class Sphere : Shape {
     private const float radius = 1f;
 
     public Sphere(Vector3 position, Color color) : base(position, color) {
-        this.material = new Lambert(this);
+        //this.material = new Lambert(this);
+        this.material = new Phong(this);
     }
 
     public override float? Intersect(Ray ray) {

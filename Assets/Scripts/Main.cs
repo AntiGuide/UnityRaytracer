@@ -18,11 +18,11 @@ public class Main : MonoBehaviour {
         SetupCornellBox();
         
         raytracer = new Raytracer(scene, renderWindow, 1, Color.black, camera);
-        RaytraceScene();
+        //RaytraceScene();
     }
 
     private void Update() {
-        //RaytraceScene();
+        RaytraceScene();
         scene.shapeList[0].UpdatePosition(scene.shapeList[0].position + Vector3.left * Input.GetAxis("Horizontal") + Vector3.down * Input.GetAxis("Vertical"));
     }
 
@@ -31,7 +31,7 @@ public class Main : MonoBehaviour {
     }
 
     private void SetupLights() {
-        scene.CreatePointLight(new Vector3(-4f,0f,-10f));
+        scene.CreatePointLight(new Vector3(-2f,-2f,-12f));
         //scene.CreatePointLight(new Vector3(2f,1f,-15f));
     }
 
@@ -42,7 +42,7 @@ public class Main : MonoBehaviour {
     private void SetupCornellBox() {
         scene.CreateSphere(new Vector3(0f,0f,-10f), Color.green);
         
-        scene.CreatePlane(new Vector3(0f,0f,25f), Vector3.forward, Color.white);    //Back
+        scene.CreatePlane(new Vector3(0f,0f,25f), Vector3.back, Color.white);    //Back
         scene.CreatePlane(new Vector3(-3,0,0), Vector3.right, Color.blue);          //Right
         scene.CreatePlane(new Vector3(3,0,0), Vector3.left, Color.red);             //Left
         scene.CreatePlane(new Vector3(0,3,0), Vector3.down, Color.white);           //Bottom

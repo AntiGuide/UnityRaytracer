@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Sirenix.Utilities;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -20,8 +21,11 @@ public class Raytracer {
     }
 
     public Color[] Render() {
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
+        var stopwatch = new Stopwatch[10];
+        for (var i = 0; i < stopwatch.Length; i++) {
+            stopwatch[i] = new Stopwatch();
+        }
+        stopwatch[0].Start();
         
         var ret = new Color[(camera.xMax + 1) * (camera.yMax + 1)];
 //        Parallel.For(0, camera.yMax + 1, y => {
@@ -37,7 +41,7 @@ public class Raytracer {
 //                    if (!(t < selectedT)) continue;
 //                    
 //                    selectedT = (float) t;
-//                    tmpColor = s.color;
+//                    tmpColor = s.CalculateColor(scene, tmpRay.GetPoint(selectedT), scene.lightList);
 //                }
 //
 //                var cameraXMax = camera.xMax + 1;
@@ -50,7 +54,9 @@ public class Raytracer {
         
         for(int y = 0;y < camera.yMax + 1; y++) {
             for (int x = 0; x < camera.xMax + 1; x++) {
+                //stopwatch[1].Start();
                 var tmpVec = camera.CalculateDestinationPoint(x, y);
+                //stopwatch[1].Stop();
                 var tmpRay = new Ray(camera.position, tmpVec);
                 var tmpColor = backgroundColor;
                 var selectedT = float.MaxValue;
@@ -61,8 +67,9 @@ public class Raytracer {
                     if (!(t < selectedT)) continue;
                     
                     selectedT = (float) t;
-                    //tmpColor = s.color;
+                    //stopwatch[2].Start();
                     tmpColor = s.CalculateColor(scene, tmpRay.GetPoint(selectedT), scene.lightList);
+                    //stopwatch[2].Stop();
                     
                 }
 
@@ -74,9 +81,14 @@ public class Raytracer {
             }
         }
         
-        stopwatch.Stop();
-        Debug.LogFormat("Iteration for all pixels took {0:hh\\:mm\\:ss\\:fffff}", stopwatch.Elapsed);
-        Debug.LogFormat("Iteration for one pixel took {0:hh\\:mm\\:ss\\:fffff} on average", new TimeSpan(stopwatch.Elapsed.Ticks / (camera.yMax * camera.xMax)));
+        stopwatch[0].Stop();
+        Debug.LogFormat("Iteration for all pixels took {0:hh\\:mm\\:ss\\:fffff}", stopwatch[0].Elapsed);
+        var SinglePixelTime = new TimeSpan(stopwatch[0].Elapsed.Ticks / (camera.yMax * camera.xMax));
+        //var SinglePixelTimeDestPoint = new TimeSpan(stopwatch[1].Elapsed.Ticks / (camera.yMax * camera.xMax));
+        //var SinglePixelTimeCalcColor = new TimeSpan(stopwatch[2].Elapsed.Ticks / (camera.yMax * camera.xMax));
+        Debug.LogFormat("Iteration for one pixel took {0:fffffff} on average", SinglePixelTime);
+        //Debug.LogFormat("Iteration for DestPoint took {0:fffffff} on average", SinglePixelTimeDestPoint);
+        //Debug.LogFormat("Iteration for CalcColor took {0:fffffff} on average", SinglePixelTimeCalcColor);
         return ret;
     }
 

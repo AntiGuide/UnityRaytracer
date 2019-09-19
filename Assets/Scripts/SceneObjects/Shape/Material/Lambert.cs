@@ -10,7 +10,7 @@ public class Lambert : Material {
     }
 
     public override Color CalculateColorSphere(Scene scene, Vector3 intersectPoint, List<Light> lights) {
-        return CalculateColor(scene, intersectPoint, lights, (intersectPoint - parent.position).normalized);
+        return CalculateColor(scene, intersectPoint, lights, (intersectPoint - Parent.Position).normalized);
     }
 
     public override Color CalculateColorPlane(Scene scene, Vector3 intersectPoint, List<Light> lights, Vector3 normal) {
@@ -22,9 +22,9 @@ public class Lambert : Material {
 
         foreach (var light in lights) {
             var collision = false;
-            var lightPosition = light.position;
-            scene.shapeList.ForEach(s => {
-                if (s == parent) return;
+            var lightPosition = light.Position;
+            scene.ShapeList.ForEach(s => {
+                if (s.Equals(Parent)) return;
                 
                 var intersectToLight = new Ray(intersectPoint, lightPosition - intersectPoint);
                 var intersectAtLength = s.Intersect(intersectToLight) ?? float.MaxValue;
@@ -32,15 +32,15 @@ public class Lambert : Material {
                 collision = intersectAtLength < magnitudeLight;
             });
 
-            var IAmbient = GetColor * AMBIENT;
+            var ambient = GetColor * AMBIENT;
             var lightIntensity = light.Intensity;
             if (collision) {
-                retColor += IAmbient * lightIntensity;
+                retColor += ambient * lightIntensity;
             } else {
                 var lightVec = (lightPosition - intersectPoint).normalized;
                 var cosAlpha = Mathf.Clamp01(Vector3.Dot(normal, lightVec));
-                var IDiffuse = GetColor * (cosAlpha * DIFFUSE);
-                retColor += (IAmbient + IDiffuse) * lightIntensity;
+                var diffuse = GetColor * (cosAlpha * DIFFUSE);
+                retColor += (ambient + diffuse) * lightIntensity;
             }
         }
 

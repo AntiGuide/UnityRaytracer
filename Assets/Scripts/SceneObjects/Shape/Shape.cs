@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Shape : SceneObject, IEquatable<Shape> {
-    public Material material;
+    public Material Material;
 
     protected Shape(Vector3 position, Color color) : base(position, color) {
     }
@@ -15,19 +15,18 @@ public abstract class Shape : SceneObject, IEquatable<Shape> {
     public bool Equals(Shape other) {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return base.Equals(other) && Equals(material, other.material);
+        return base.Equals(other) && Equals(Material, other.Material);
     }
 
     public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((Shape) obj);
+        return obj.GetType() == this.GetType() && Equals((Shape) obj);
     }
 
     public override int GetHashCode() {
         unchecked {
-            return (base.GetHashCode() * 397) ^ (material != null ? material.GetHashCode() : 0);
+            return (base.GetHashCode() * 397) ^ (Material != null ? Material.GetHashCode() : 0);
         }
     }
 }

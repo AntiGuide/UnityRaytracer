@@ -7,7 +7,7 @@ public class Main : MonoBehaviour {
     [SerializeField]
     private RenderWindow renderWindow;
     
-    private Camera camera;
+    private Camera myCamera;
     
     private void Start() {
         Screen.SetResolution(renderWindow.ResolutionWidth, renderWindow.ResolutionHeight,FullScreenMode.Windowed);
@@ -17,13 +17,16 @@ public class Main : MonoBehaviour {
         SetupCameras();
         SetupCornellBox();
         
-        raytracer = new Raytracer(scene, renderWindow, 1, Color.black, camera);
-        //RaytraceScene();
+        raytracer = new Raytracer(scene, renderWindow, 1, Color.black, myCamera);
     }
 
     private void Update() {
+        if (!Input.GetKeyDown(KeyCode.C)) return;
+        
+        raytracer.Render();
         RaytraceScene();
-        scene.shapeList[0].UpdatePosition(scene.shapeList[0].position + Vector3.left * Input.GetAxis("Horizontal") + Vector3.down * Input.GetAxis("Vertical"));
+
+        //scene.ShapeList[0].UpdatePosition(scene.ShapeList[0].Position + Vector3.left * Input.GetAxis("Horizontal") + Vector3.down * Input.GetAxis("Vertical"));
     }
 
     private void SetupScene() {
@@ -36,7 +39,7 @@ public class Main : MonoBehaviour {
     }
 
     private void SetupCameras() {
-        camera = scene.CreatePerspCamera();
+        myCamera = scene.CreatePerspectiveCamera();
     }
 
     private void SetupCornellBox() {
@@ -51,7 +54,7 @@ public class Main : MonoBehaviour {
     }
 
     private void RaytraceScene() {
-        renderWindow.SetPixels(raytracer.Render());
+        renderWindow.SetPixels(raytracer.RenderComplete());
     }
 
 }

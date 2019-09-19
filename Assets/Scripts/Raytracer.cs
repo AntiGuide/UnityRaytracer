@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Sirenix.Utilities;
+using System.Linq;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 public class Raytracer {
     private Scene scene;
@@ -11,6 +11,14 @@ public class Raytracer {
     private int maxRecursions;
     private Color backgroundColor;
     private Camera camera;
+    public JobHandle JobHandle;
+    
+    private NativeArray<CameraData> cameraDataNativeArray;
+    private NativeArray<Color> backgroundColorNativeArray;
+    private NativeArray<SphereData> sceneSpheresNativeArray;
+    private NativeArray<PlaneData> scenePlanesNativeArray;
+    private NativeArray<LightData> sceneLightsNativeArray;
+    private NativeArray<Color> resultBitmapNativeArray;
 
     public Raytracer(Scene scene, RenderWindow renderWindow, int maxRecursions, Color backgroundColor, Camera camera) {
         this.scene = scene;
@@ -20,75 +28,41 @@ public class Raytracer {
         this.camera = camera;
     }
 
-    public Color[] Render() {
-        var stopwatch = new Stopwatch[10];
-        for (var i = 0; i < stopwatch.Length; i++) {
-            stopwatch[i] = new Stopwatch();
-        }
-        stopwatch[0].Start();
-        
-        var ret = new Color[(camera.xMax + 1) * (camera.yMax + 1)];
-//        Parallel.For(0, camera.yMax + 1, y => {
-//            Parallel.For(0, camera.xMax + 1, x => {
-//                var tmpVec = camera.CalculateDestinationPoint(x, y);
-//                var tmpRay = new Ray(camera.position, tmpVec);
-//                var tmpColor = backgroundColor;
-//                var selectedT = float.MaxValue;
-//                foreach (var s in scene.shapeList) {
-//                    var t = s.Intersect(tmpRay);
-//                    
-//                    if (t == null) continue;
-//                    if (!(t < selectedT)) continue;
-//                    
-//                    selectedT = (float) t;
-//                    tmpColor = s.CalculateColor(scene, tmpRay.GetPoint(selectedT), scene.lightList);
-//                }
-//
-//                var cameraXMax = camera.xMax + 1;
-//                var selectY = (camera.yMax - y);
-//                var writeY = selectY * cameraXMax;
-//                var writeX = x;
-//                ret[writeY + writeX] = tmpColor;
-//            });
-//        });
-        
-        for(int y = 0;y < camera.yMax + 1; y++) {
-            for (int x = 0; x < camera.xMax + 1; x++) {
-                //stopwatch[1].Start();
-                var tmpVec = camera.CalculateDestinationPoint(x, y);
-                //stopwatch[1].Stop();
-                var tmpRay = new Ray(camera.position, tmpVec);
-                var tmpColor = backgroundColor;
-                var selectedT = float.MaxValue;
-                foreach (var s in scene.shapeList) {
-                    var t = s.Intersect(tmpRay);
-                    
-                    if (t == null) continue;
-                    if (!(t < selectedT)) continue;
-                    
-                    selectedT = (float) t;
-                    //stopwatch[2].Start();
-                    tmpColor = s.CalculateColor(scene, tmpRay.GetPoint(selectedT), scene.lightList);
-                    //stopwatch[2].Stop();
-                    
-                }
+    public void Render() {
+        var bitmapSize = (camera.XMax + 1) * (camera.YMax + 1);
 
-                var cameraXMax = camera.xMax + 1;
-                var selectY = (camera.yMax - y);
-                var writeY = selectY * cameraXMax;
-                var writeX = x;
-                ret[writeY + writeX] = tmpColor;
-            }
-        }
+        cameraDataNativeArray = new NativeArray<CameraData>(new [] { camera.CreateStructFromObject() }, Allocator.Persistent);
+        backgroundColorNativeArray = new NativeArray<Color>(new [] { backgroundColor }, Allocator.Persistent);
         
-        stopwatch[0].Stop();
-        Debug.LogFormat("Iteration for all pixels took {0:hh\\:mm\\:ss\\:fffff}", stopwatch[0].Elapsed);
-        var SinglePixelTime = new TimeSpan(stopwatch[0].Elapsed.Ticks / (camera.yMax * camera.xMax));
-        //var SinglePixelTimeDestPoint = new TimeSpan(stopwatch[1].Elapsed.Ticks / (camera.yMax * camera.xMax));
-        //var SinglePixelTimeCalcColor = new TimeSpan(stopwatch[2].Elapsed.Ticks / (camera.yMax * camera.xMax));
-        Debug.LogFormat("Iteration for one pixel took {0:fffffff} on average", SinglePixelTime);
-        //Debug.LogFormat("Iteration for DestPoint took {0:fffffff} on average", SinglePixelTimeDestPoint);
-        //Debug.LogFormat("Iteration for CalcColor took {0:fffffff} on average", SinglePixelTimeCalcColor);
+        sceneSpheresNativeArray = new NativeArray<SphereData>(scene.SphereList.Select(s => s.CreateStructFromObject()).ToArray(), Allocator.Persistent);
+        scenePlanesNativeArray = new NativeArray<PlaneData>(scene.PlaneList.Select(p => p.CreateStructFromObject()).ToArray(), Allocator.Persistent);
+        
+        sceneLightsNativeArray = new NativeArray<LightData>(scene.LightList.Select(l => l.CreateStructFromObject()).ToArray(), Allocator.Persistent);
+        
+        resultBitmapNativeArray = new NativeArray<Color>(bitmapSize , Allocator.Persistent);
+
+        var raytraceJob = new RaytracePixelJob {
+            CameraData = cameraDataNativeArray,
+            BackgroundColor = backgroundColorNativeArray,
+            SphereDatas = sceneSpheresNativeArray,
+            PlanesDatas = scenePlanesNativeArray,
+            LightDatas = sceneLightsNativeArray,
+            ResultBitmapNativeArray = resultBitmapNativeArray,
+        };
+        JobHandle = raytraceJob.Schedule(camera.YMax * camera.XMax, 85000);
+    }
+
+    public Color[] RenderComplete() {
+        JobHandle.Complete();
+        var ret = resultBitmapNativeArray.ToArray();
+        
+        cameraDataNativeArray.Dispose();
+        backgroundColorNativeArray.Dispose();
+        sceneSpheresNativeArray.Dispose();
+        scenePlanesNativeArray.Dispose();
+        sceneLightsNativeArray.Dispose();
+        resultBitmapNativeArray.Dispose();
+
         return ret;
     }
 
@@ -106,5 +80,62 @@ public class Raytracer {
 
     public Color TraceIllumination() {
         throw new NotImplementedException();
+    }
+}
+
+[BurstCompile]
+public struct RaytracePixelJob : IJobParallelFor {
+    [ReadOnly] public NativeArray<CameraData> CameraData;
+    [ReadOnly] public NativeArray<Color> BackgroundColor;
+    [ReadOnly] public NativeArray<SphereData> SphereDatas;
+    [ReadOnly] public NativeArray<PlaneData> PlanesDatas;
+    [ReadOnly] public NativeArray<LightData> LightDatas;
+    
+    [WriteOnly] public NativeArray<Color> ResultBitmapNativeArray;
+    
+    public void Execute(int index) {
+        var x = index % (CameraData[0].XMax + 1);
+        var y = index / (CameraData[0].XMax + 1);
+        
+        var tmpVec = CalculateDestinationPoint(x, y);
+        var tmpRay = new Ray(CameraData[0].Position, tmpVec);
+        var tmpColor = BackgroundColor[0];
+        var selectedT = float.MaxValue;
+
+        for (var i = 0; i < PlanesDatas.Length; i++) {
+            var s = PlanesDatas[i];
+            var t = s.Intersect(tmpRay);
+
+            if (t == null) continue;
+            if (!(t < selectedT)) continue;
+
+            selectedT = (float) t;
+            tmpColor = s.CalculateColor(SphereDatas, PlanesDatas, CameraData[0].Position, tmpRay.GetPoint(selectedT),
+                LightDatas);
+        }
+
+        for (var i = 0; i < SphereDatas.Length; i++) {
+            var s = SphereDatas[i];
+            var t = s.Intersect(tmpRay);
+
+            if (t == null) continue;
+            if (!(t < selectedT)) continue;
+
+            selectedT = (float) t;
+            tmpColor = s.CalculateColor(SphereDatas, PlanesDatas, CameraData[0].Position, tmpRay.GetPoint(selectedT),
+                LightDatas);
+        }
+
+        ResultBitmapNativeArray[index] = tmpColor;
+    }
+    
+    private Vector3 CalculateDestinationPoint(int x, int y) {
+        var normalizedPos = new Vector2 {
+            x = 2f * ((x + 0.5f) / (CameraData[0].XMax + 1)) - 1f,
+            y = 2f * ((y + 0.5f) / (CameraData[0].YMax + 1)) - 1f
+        };
+
+        var p1 = CameraData[0].H * normalizedPos.y * CameraData[0].UpVector + CameraData[0].W * normalizedPos.x * CameraData[0].SideVector;
+        return (p1 + CameraData[0].LookAt).normalized;
     }
 }

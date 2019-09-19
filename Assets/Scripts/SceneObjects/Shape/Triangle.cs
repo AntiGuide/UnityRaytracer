@@ -10,6 +10,6 @@ public class Triangle : Shape {
     }
 
     public override Color CalculateColor(Scene scene, Vector3 intersectPoint, List<Light> list) {
-        return color;
+        return Color;
     }
 }

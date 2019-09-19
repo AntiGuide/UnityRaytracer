@@ -2,46 +2,45 @@
 using UnityEngine;
 
 public abstract class SceneObject : IEquatable<SceneObject>{
-    public Vector3 position;
+    public Vector3 Position;
 
-    public Matrix4x4 worldToLocalMatrix;
-    public Color color;
+    protected Matrix4x4 WorldToLocalMatrix;
+    public readonly Color Color;
 
     protected SceneObject(Vector3 position, Color color) {
-        this.position = position;
-        this.color = color;
+        Position = position;
+        Color = color;
         
         var gameObject = new GameObject();
-        gameObject.transform.position = this.position;
+        gameObject.transform.position = Position;
         var objectTransform = gameObject.transform;
-        worldToLocalMatrix = objectTransform.worldToLocalMatrix;
+        WorldToLocalMatrix = objectTransform.worldToLocalMatrix;
     }
 
     public void UpdatePosition(Vector3 position) {
-        this.position = position;
+        this.Position = position;
         
         var gameObject = new GameObject();
-        gameObject.transform.position = this.position;
+        gameObject.transform.position = this.Position;
         var objectTransform = gameObject.transform;
-        worldToLocalMatrix = objectTransform.worldToLocalMatrix;
+        WorldToLocalMatrix = objectTransform.worldToLocalMatrix;
     }
 
     public bool Equals(SceneObject other) {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return position.Equals(other.position) && color.Equals(other.color);
+        return Position.Equals(other.Position) && Color.Equals(other.Color);
     }
 
     public override bool Equals(object obj) {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((SceneObject) obj);
+        return obj.GetType() == GetType() && Equals((SceneObject) obj);
     }
 
     public override int GetHashCode() {
         unchecked {
-            return (position.GetHashCode() * 397) ^ color.GetHashCode();
+            return (Position.GetHashCode() * 397) ^ Color.GetHashCode();
         }
     }
 }

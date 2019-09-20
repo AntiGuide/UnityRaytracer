@@ -54,7 +54,7 @@ public class Main : MonoBehaviour {
     }
 
     private void RaytraceScene() {
-        renderWindow.SetPixels(raytracer.RenderComplete());
+        StartCoroutine(raytracer.RenderComplete());
     }
 
 }

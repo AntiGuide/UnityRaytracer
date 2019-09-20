@@ -1,24 +1,29 @@
 ﻿using System;
+using System.Collections;
+using System.Diagnostics;
 using System.Linq;
+using Sirenix.Utilities;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class Raytracer {
+    private const int JOB_COUNT = 12;
     private Scene scene;
     private RenderWindow renderWindow;
     private int maxRecursions;
     private Color backgroundColor;
     private Camera camera;
-    public JobHandle JobHandle;
+    public JobHandle[] JobHandles;
     
     private NativeArray<CameraData> cameraDataNativeArray;
     private NativeArray<Color> backgroundColorNativeArray;
     private NativeArray<SphereData> sceneSpheresNativeArray;
     private NativeArray<PlaneData> scenePlanesNativeArray;
     private NativeArray<LightData> sceneLightsNativeArray;
-    private NativeArray<Color> resultBitmapNativeArray;
+    private NativeArray<Color>[] resultBitmapNativeArrays;
 
     public Raytracer(Scene scene, RenderWindow renderWindow, int maxRecursions, Color backgroundColor, Camera camera) {
         this.scene = scene;
@@ -29,41 +34,62 @@ public class Raytracer {
     }
 
     public void Render() {
-        var bitmapSize = (camera.XMax + 1) * (camera.YMax + 1);
-
         cameraDataNativeArray = new NativeArray<CameraData>(new [] { camera.CreateStructFromObject() }, Allocator.Persistent);
         backgroundColorNativeArray = new NativeArray<Color>(new [] { backgroundColor }, Allocator.Persistent);
-        
         sceneSpheresNativeArray = new NativeArray<SphereData>(scene.SphereList.Select(s => s.CreateStructFromObject()).ToArray(), Allocator.Persistent);
         scenePlanesNativeArray = new NativeArray<PlaneData>(scene.PlaneList.Select(p => p.CreateStructFromObject()).ToArray(), Allocator.Persistent);
-        
         sceneLightsNativeArray = new NativeArray<LightData>(scene.LightList.Select(l => l.CreateStructFromObject()).ToArray(), Allocator.Persistent);
         
-        resultBitmapNativeArray = new NativeArray<Color>(bitmapSize , Allocator.Persistent);
+        resultBitmapNativeArrays = new NativeArray<Color>[JOB_COUNT];
+        JobHandles = new JobHandle[JOB_COUNT];
+        var remainingY = camera.YMax;
+        var remainingJobs = JOB_COUNT;
+        var offset = 0;
+        for (var i = 0; i < JOB_COUNT; i++) {
+            var thisY = Mathf.CeilToInt(remainingY / (float) remainingJobs);
+            remainingJobs--;
+            remainingY -= thisY;
+            var bitmapSize = (camera.XMax + 1) * thisY;
+            resultBitmapNativeArrays[i] = new NativeArray<Color>(bitmapSize , Allocator.Persistent);
+            var raytraceJob = new RaytracePixelJob {
+                CameraData = cameraDataNativeArray,
+                BackgroundColor = backgroundColorNativeArray,
+                SphereDatas = sceneSpheresNativeArray,
+                PlanesDatas = scenePlanesNativeArray,
+                LightDatas = sceneLightsNativeArray,
+                ResultBitmapNativeArray = resultBitmapNativeArrays[i],
+                Offset = offset,
+            };
 
-        var raytraceJob = new RaytracePixelJob {
-            CameraData = cameraDataNativeArray,
-            BackgroundColor = backgroundColorNativeArray,
-            SphereDatas = sceneSpheresNativeArray,
-            PlanesDatas = scenePlanesNativeArray,
-            LightDatas = sceneLightsNativeArray,
-            ResultBitmapNativeArray = resultBitmapNativeArray,
-        };
-        JobHandle = raytraceJob.Schedule((camera.YMax + 1) * (camera.XMax + 1), 85000);
+            offset += bitmapSize;
+            
+            if (i == 0) {
+                JobHandles[i] = raytraceJob.Schedule(bitmapSize, bitmapSize / 12);
+            } else {
+                JobHandles[i] = raytraceJob.Schedule(bitmapSize, bitmapSize / 12, JobHandles[i-1]);
+            }
+        }
+
+        
     }
 
-    public Color[] RenderComplete() {
-        JobHandle.Complete();
-        var ret = resultBitmapNativeArray.ToArray();
+    public IEnumerator RenderComplete() {
+        var offset = 0;
+        for (var i = 0; i < JobHandles.Length; i++) {
+            var jh = JobHandles[i];
+            yield return new WaitUntil(() => jh.IsCompleted);
+            jh.Complete();
+            var arr = resultBitmapNativeArrays[i].ToArray();
+            renderWindow.SetPixels(arr, offset);
+            offset += arr.Length;
+        }
         
         cameraDataNativeArray.Dispose();
         backgroundColorNativeArray.Dispose();
         sceneSpheresNativeArray.Dispose();
         scenePlanesNativeArray.Dispose();
         sceneLightsNativeArray.Dispose();
-        resultBitmapNativeArray.Dispose();
-
-        return ret;
+        resultBitmapNativeArrays.ForEach(na => na.Dispose());
     }
 
     public Color SendPrimaryRay() {
@@ -90,12 +116,13 @@ public struct RaytracePixelJob : IJobParallelFor {
     [ReadOnly] public NativeArray<SphereData> SphereDatas;
     [ReadOnly] public NativeArray<PlaneData> PlanesDatas;
     [ReadOnly] public NativeArray<LightData> LightDatas;
+    [ReadOnly] public int Offset;
     
     [WriteOnly] public NativeArray<Color> ResultBitmapNativeArray;
     
     public void Execute(int index) {
-        var x = index % (CameraData[0].XMax + 1);
-        var y = index / (CameraData[0].XMax + 1);
+        var x = (index + Offset) % (CameraData[0].XMax + 1);
+        var y = (index + Offset) / (CameraData[0].XMax + 1);
         
         var tmpVec = CalculateDestinationPoint(x, y);
         var tmpRay = new Ray(CameraData[0].Position, tmpVec);

@@ -52,7 +52,7 @@ public class RenderWindow : SerializedMonoBehaviour {
         rawImage.texture = rawImageTexture;
     }
 
-    public void SetPixels(Color[] colors) {
+    public void SetPixels(Color[] colors, int offset) {
         if (rawImageTexture == null) {
             rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight)
             {
@@ -60,7 +60,8 @@ public class RenderWindow : SerializedMonoBehaviour {
             };
         }
         
-        rawImageTexture.SetPixels(colors);
+        //rawImageTexture.SetPixels(colors);
+        rawImageTexture.SetPixels(offset % rawImageTexture.width, offset / rawImageTexture.width, rawImageTexture.width, colors.Length / rawImageTexture.width,colors);
         rawImageTexture.Apply();
         rawImage.texture = rawImageTexture;
     }

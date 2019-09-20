@@ -49,7 +49,7 @@ public class Raytracer {
             LightDatas = sceneLightsNativeArray,
             ResultBitmapNativeArray = resultBitmapNativeArray,
         };
-        JobHandle = raytraceJob.Schedule(camera.YMax * camera.XMax, 85000);
+        JobHandle = raytraceJob.Schedule((camera.YMax + 1) * (camera.XMax + 1), 85000);
     }
 
     public Color[] RenderComplete() {

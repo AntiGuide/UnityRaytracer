@@ -26,7 +26,10 @@ public class RenderWindow : SerializedMonoBehaviour {
         Instance = this;
         
         if (rawImageTexture == null) {
-            rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight);
+            rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight)
+            {
+                filterMode = FilterMode.Point
+            };
         }
         //SetFillColor(Color.grey);
     }
@@ -51,7 +54,10 @@ public class RenderWindow : SerializedMonoBehaviour {
 
     public void SetPixels(Color[] colors) {
         if (rawImageTexture == null) {
-            rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight);
+            rawImageTexture = new Texture2D(resolutionWidth, resolutionHeight)
+            {
+                filterMode = FilterMode.Point
+            };
         }
         
         rawImageTexture.SetPixels(colors);

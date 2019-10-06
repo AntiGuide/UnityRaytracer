@@ -11,11 +11,10 @@ public class Plane : Shape {
 
     public Plane(Vector3 position, Vector3 normal, Color color) : base(position, color) {
         this.normal = normal;
-        //this.material = new Lambert(this);
         this.material = new Phong(this);
     }
 
-    public override float? Intersect(Ray ray) {
+    public float? OldIntersect(Ray ray) {
         //ray = ray.TransformRay(worldToLocalMatrix);
         
         if (Math.Abs(Vector3.Dot(normal, ray.direction)) < float.Epsilon) return null;
@@ -28,6 +27,17 @@ public class Plane : Shape {
         }
         
         return t;
+    }
+
+    public override float? Intersect(Ray ray) {
+        var denominator = Vector3.Dot(-normal, ray.direction);
+        if (!(denominator > 0.000001f)) return null;
+        
+        var p0l0 = position - ray.origin; 
+        var t = Vector3.Dot(p0l0, -normal) / denominator;
+        if (t >= 0f) return t;
+
+        return null; 
     }
 
     public override Color CalculateColor(Scene scene, Vector3 intersectPoint, List<Light> list) {

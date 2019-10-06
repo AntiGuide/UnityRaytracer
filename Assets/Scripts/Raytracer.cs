@@ -21,12 +21,13 @@ public class Raytracer {
     }
 
     public Color[] Render() {
-        var ret = new Color[(camera.xMax) * (camera.yMax)];
+        var ret = new Color[camera.xMax * camera.yMax];
         
         for(int y = 0;y < camera.yMax; y++) {
             for (int x = 0; x < camera.xMax; x++) {
                 var tmpVec = camera.CalculateDestinationPoint(x, y);
                 var tmpRay = new Ray(camera.position, tmpVec);
+
                 var tmpColor = backgroundColor;
                 var selectedT = float.MaxValue;
                 foreach (var s in scene.shapeList) {
@@ -37,13 +38,16 @@ public class Raytracer {
                     
                     selectedT = (float) t;
                     tmpColor = s.CalculateColor(scene, tmpRay.GetPoint(selectedT), scene.lightList);
-                    
+                    //tmpColor = s.color;
+
                 }
 
-                var cameraXMax = camera.xMax - 1;
-                var selectY = ((camera.yMax - 1) - y);
+                var cameraXMax = camera.xMax;
+                //var selectY = camera.yMax - 1 - y;
+                var selectY = y;
                 var writeY = selectY * cameraXMax;
-                var writeX = x;
+                var writeX = camera.xMax - 1 - x;
+                if(x % 100 == 0 && y % 100 == 0) Debug.DrawRay(tmpRay.origin, tmpRay.direction.normalized * selectedT, tmpColor, 100f, true);
                 ret[writeY + writeX] = tmpColor;
             }
         }

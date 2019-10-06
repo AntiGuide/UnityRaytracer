@@ -21,7 +21,7 @@ public class Scene {
     }
 
     public Camera CreatePerspCamera() {
-        Camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f,5,RenderWindow.Instance.ResolutionWidth,RenderWindow.Instance.ResolutionHeight);
+        Camera = new PerspCam(new Vector3(0,0,-17), Vector3.zero, Vector3.up, 35f/*,5*/,RenderWindow.Instance.ResolutionWidth,RenderWindow.Instance.ResolutionHeight);
         return Camera;
     }
 

@@ -37,7 +37,7 @@ public class Phong : Material {
                 var intersectAtLength = s.Intersect(intersectToLight) ?? float.MaxValue;
                 var magnitudeLight = Vector3.Magnitude(lightPosition - intersectPoint);
                 collision = intersectAtLength < magnitudeLight;
-                //if (collision) break;
+                if (collision) break;
             }
 
             var lightVec = (lightPosition - intersectPoint).normalized;

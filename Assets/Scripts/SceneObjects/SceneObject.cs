@@ -15,12 +15,6 @@ public abstract class SceneObject : IEquatable<SceneObject>{
         worldToLocalMatrix = worldToLocalMatrix.inverse;
     }
 
-    public void UpdatePosition(Vector3 position) {
-        this.position = position;
-        worldToLocalMatrix.SetTRS(position, Quaternion.identity, Vector3.one);
-        worldToLocalMatrix = worldToLocalMatrix.inverse;
-    }
-
     public bool Equals(SceneObject other) {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;

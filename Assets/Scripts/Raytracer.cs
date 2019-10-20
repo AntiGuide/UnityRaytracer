@@ -1,21 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Sirenix.Utilities;
-using UnityEngine;
-using Debug = UnityEngine.Debug;
+﻿using UnityEngine;
 
 public class Raytracer {
-    private Scene scene;
-    private RenderWindow renderWindow;
-    private int maxRecursions;
-    private Color backgroundColor;
-    private Camera camera;
+    private readonly Scene scene;
+    private readonly Color backgroundColor;
+    private readonly Camera camera;
 
-    public Raytracer(Scene scene, RenderWindow renderWindow, int maxRecursions, Color backgroundColor, Camera camera) {
+    public Raytracer(Scene scene, Color backgroundColor, Camera camera) {
         this.scene = scene;
-        this.renderWindow = renderWindow;
-        this.maxRecursions = maxRecursions;
         this.backgroundColor = backgroundColor;
         this.camera = camera;
     }
@@ -23,51 +14,29 @@ public class Raytracer {
     public Color[] Render() {
         var ret = new Color[camera.xMax * camera.yMax];
         
-        for(int y = 0;y < camera.yMax; y++) {
-            for (int x = 0; x < camera.xMax; x++) {
+        for(var y = 0;y < camera.yMax; y++) {
+            for (var x = 0; x < camera.xMax; x++) {
                 var tmpVec = camera.CalculateDestinationPoint(x, y);
                 var tmpRay = new Ray(camera.position, tmpVec);
-
                 var tmpColor = backgroundColor;
                 var selectedT = float.MaxValue;
                 foreach (var s in scene.shapeList) {
                     var t = s.Intersect(tmpRay);
-                    
                     if (t == null) continue;
                     if (!(t < selectedT)) continue;
                     
                     selectedT = (float) t;
                     tmpColor = s.CalculateColor(scene, tmpRay.GetPoint(selectedT), scene.lightList);
-                    //tmpColor = s.color;
-
                 }
 
                 var cameraXMax = camera.xMax;
-                //var selectY = camera.yMax - 1 - y;
                 var selectY = y;
                 var writeY = selectY * cameraXMax;
                 var writeX = camera.xMax - 1 - x;
-                if(x % 100 == 0 && y % 100 == 0) Debug.DrawRay(tmpRay.origin, tmpRay.direction.normalized * selectedT, tmpColor, 100f, true);
                 ret[writeY + writeX] = tmpColor;
             }
         }
         
         return ret;
-    }
-
-    public Color SendPrimaryRay() {
-        throw new NotImplementedException();
-    }
-
-    public Color TraceRay() {
-        throw new NotImplementedException();
-    }
-
-    public Color Shade() {
-        throw new NotImplementedException();
-    }
-
-    public Color TraceIllumination() {
-        throw new NotImplementedException();
     }
 }

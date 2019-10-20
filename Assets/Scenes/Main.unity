@@ -288,8 +288,8 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   rawImage: {fileID: 202097355}
-  resolutionWidth: 1024
-  resolutionHeight: 768
+  resolutionWidth: 1600
+  resolutionHeight: 1200
 --- !u!114 &202097358
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -7,7 +7,7 @@ public class Main : MonoBehaviour {
     [SerializeField]
     private RenderWindow renderWindow;
     
-    private Camera camera;
+    private Camera mainCamera;
     
     private void Start() {
         Screen.SetResolution(renderWindow.ResolutionWidth, renderWindow.ResolutionHeight,FullScreenMode.Windowed);
@@ -17,13 +17,8 @@ public class Main : MonoBehaviour {
         SetupCameras();
         SetupCornellBox();
         
-        raytracer = new Raytracer(scene, renderWindow, 1, Color.black, camera);
+        raytracer = new Raytracer(scene, Color.black, mainCamera);
         RaytraceScene();
-    }
-
-    private void Update() {
-        //RaytraceScene();
-        //scene.shapeList[0].UpdatePosition(scene.shapeList[0].position + Vector3.left * Input.GetAxis("Horizontal") + Vector3.down * Input.GetAxis("Vertical"));
     }
 
     private void SetupScene() {
@@ -35,18 +30,21 @@ public class Main : MonoBehaviour {
     }
 
     private void SetupCameras() {
-        camera = scene.CreatePerspCamera(new Vector3(0,0,17), Vector3.zero, Vector3.up, 35f, renderWindow.ResolutionWidth, renderWindow.ResolutionHeight);
+        mainCamera = scene.CreatePerspectiveCamera(new Vector3(0,0,17), Vector3.zero, Vector3.up, 35f, renderWindow.ResolutionWidth, renderWindow.ResolutionHeight);
     }
 
     private void SetupCornellBox() {
-        scene.CreateSphere(new Vector3(0f,0f,10f), Color.green);
+        scene.CreateSphere(new Vector3(1f,-2f,9f), Color.red);
+        scene.CreateSphere(new Vector3(-1f,-2f,11f), Color.green);
         
-        scene.CreatePlane(new Vector3(-4f,0,15.5f), Vector3.right, Color.red);          //Right
-        scene.CreatePlane(new Vector3(4f,0,15.5f), Vector3.left, Color.blue);          //Left
-        scene.CreatePlane(new Vector3(0f,3f,15.5f), Vector3.down, Color.white);          //Top
-        scene.CreatePlane(new Vector3(0f,-3f,15.5f), Vector3.up, Color.white);          //Bottom
-        scene.CreatePlane(new Vector3(0f,0f,8f), Vector3.forward, Color.white);          //Back
-        scene.CreatePlane(new Vector3(0f,0f,20f), Vector3.back, Color.white);          //BehindCam
+        scene.CreateSquare(new Vector3(0f,2.999f,10f), Vector3.down, Color.white, 1f);
+        
+        scene.CreatePlane(new Vector3(-4f, 0, 15.5f), Vector3.right,   Color.red,   0f, 0f); //Right
+        scene.CreatePlane(new Vector3( 4f, 0, 15.5f), Vector3.left,    Color.blue,  0f, 0f); //Left
+        scene.CreatePlane(new Vector3( 0f, 3f,15.5f), Vector3.down,    Color.white, 0f, 0f); //Top
+        scene.CreatePlane(new Vector3( 0f,-3f,15.5f), Vector3.up,      Color.white, 0f, 0f); //Bottom
+        scene.CreatePlane(new Vector3( 0f, 0f,   8f), Vector3.forward, Color.white, 0f, 0f); //Back
+        scene.CreatePlane(new Vector3( 0f, 0f,  20f), Vector3.back,    Color.white, 0f, 0f); //BehindCam
     }
 
     private void RaytraceScene() {

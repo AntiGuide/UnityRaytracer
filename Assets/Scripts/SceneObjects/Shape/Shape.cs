@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Shape : SceneObject, IEquatable<Shape> {
-    public Material material;
+    protected Material material;
 
     protected Shape(Vector3 position, Color color) : base(position, color) {
+        
     }
 
     public abstract float? Intersect(Ray ray);

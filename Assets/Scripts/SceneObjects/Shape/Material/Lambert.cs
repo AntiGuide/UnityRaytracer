@@ -2,12 +2,10 @@
 using UnityEngine;
 
 public class Lambert : Material {
-    private const float AMBIENT = 0.3f;
-    private const float DIFFUSE = 0.7f;
+    private const float AMBIENT = 1f;
+    private const float DIFFUSE = 0f;
 
-    public Lambert(Shape parent) : base(parent) {
-
-    }
+    public Lambert(Shape parent) : base(parent) { }
 
     public override Color CalculateColorSphere(Scene scene, Vector3 intersectPoint, List<Light> lights) {
         return CalculateColor(scene, intersectPoint, lights, (intersectPoint - parent.position).normalized);
@@ -24,7 +22,7 @@ public class Lambert : Material {
             var collision = false;
             var lightPosition = light.position;
             scene.shapeList.ForEach(s => {
-                if (s == parent) return;
+                if (s.Equals(parent)) return;
                 
                 var intersectToLight = new Ray(intersectPoint, lightPosition - intersectPoint);
                 var intersectAtLength = s.Intersect(intersectToLight) ?? float.MaxValue;

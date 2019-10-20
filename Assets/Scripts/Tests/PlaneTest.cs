@@ -24,10 +24,9 @@ namespace Tests {
         }
         
         [Test]
-        public void PlaneCollisionTestBackface_ShouldCollide() {
+        public void PlaneCollisionTestBackface_ShouldNotCollide() {
             var result = CheckPlaneAt(new Vector3(2, 2, 2), Vector3.one, Vector3.zero, Vector3.one);
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.EqualTo(3.46410179f).Within(0.00001f));
+            Assert.That(result, Is.Null);
         }
 
         private static float? CheckPlaneAt(Vector3 planePosition, Vector3 planeNormal, Vector3 origin, Vector3 direction) {

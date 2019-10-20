@@ -2,18 +2,20 @@
 using UnityEngine;
 
 public class Phong : Material {
+    private const float AMBIENT = 0.05f;
+    private const float DIFFUSE = 0.95f;
     
-    private const float AMBIENT = 0.3f;
-    private const float DIFFUSE = 0.7f;
-    
-    //ks = Reflektions-Konstante für Specular Lighting (REFLECTION)
-    private const float REFLECTION = 0.8f;
-    
-    //Wegen Unebenheit a als Shininess-Konstante
-    //SHINY(a) = Shininess-Konstante
-    private const float SHINY = 30f;
+    private readonly float reflection;
+    private readonly float shiny;
     
     public Phong(Shape parent) : base(parent) {
+        reflection = 0.8f;
+        shiny = 30f;
+    }
+    
+    public Phong(Shape parent, float reflection, float shiny) : base(parent) {
+        this.reflection = reflection;
+        this.shiny = shiny;
     }
 
     public override Color CalculateColorSphere(Scene scene, Vector3 intersectPoint, List<Light> lights) {
@@ -26,7 +28,6 @@ public class Phong : Material {
     
     private Color CalculateColor(Scene scene, Vector3 intersectPoint, List<Light> lights, Vector3 normal) {
         var retColor = new Color();
-
         foreach (var light in lights) {
             var collision = false;
             var lightPosition = light.position;
@@ -47,10 +48,10 @@ public class Phong : Material {
             if (collision || cosAlpha <= float.Epsilon) {
                 retColor += IAmbient * lightIntensity;
             } else {
-                var V = (scene.Camera.position - intersectPoint).normalized; //V  = Materialpunkt zu Kamera
-                var L = (light.position - intersectPoint).normalized; //L  = Materialpunkt zu Licht
-                var R = (2*Mathf.Clamp01(Vector3.Dot(normal,L))*normal-L).normalized; //R  = L an N gespiegelt => 2*(N*L)*N-L
-                var Specular = REFLECTION * Mathf.Pow(Vector3.Dot(R, V), SHINY) * light.color; //Specular = ks * (Mathf.Dot(R * V) ^ a) * is
+                var V = (scene.Camera.position - intersectPoint).normalized;                    //V  = Materialpunkt zu Kamera
+                var L = (light.position - intersectPoint).normalized;                           //L  = Materialpunkt zu Licht
+                var R = (2*Mathf.Clamp01(Vector3.Dot(normal,L))*normal-L).normalized;           //R  = L an N gespiegelt => 2*(N*L)*N-L
+                var Specular = reflection * Mathf.Pow(Vector3.Dot(R, V), shiny) * light.color;  //Specular = ks * (Mathf.Dot(R * V) ^ a) * is
                 var IDiffuse = GetColor * (cosAlpha * DIFFUSE);
                 retColor += (IAmbient + IDiffuse + Specular) * lightIntensity;
             }

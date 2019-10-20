@@ -1,38 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 public class Sphere : Shape {
     private const float radius = 1f;
 
     public Sphere(Vector3 position, Color color) : base(position, color) {
-        //this.material = new Lambert(this);
         this.material = new Phong(this);
     }
 
     public override float? Intersect(Ray ray) {
         ray = ray.TransformRay(worldToLocalMatrix);
-        
         var o = ray.origin;
         var d = ray.direction;
-
         var B = 2f * (o.x * d.x + o.y * d.y + o.z * d.z);
-
         var C = o.x * o.x + o.y * o.y + o.z * o.z - radius * radius;
-
-        if (Determinant(B, C) < 0f) {
-            return null;
-        }
+        if (Determinant(B, C) < 0f) return null;
 
         if (Math.Abs(Determinant(B, C)) < float.Epsilon) {
             var intersect = T0(B, C);
-            if (intersect < 0) {
-                return null;
-            }
-            
+            if (intersect < 0) return null;
+
             return intersect;
         }
 
@@ -42,10 +31,8 @@ public class Sphere : Shape {
         };
         
         tList.RemoveAll(f => f < 0f);
-        if (tList.Count == 0) {
-            return null;
-        }
-        
+        if (tList.Count == 0) return null;
+
         return tList.Min();
     }
 
